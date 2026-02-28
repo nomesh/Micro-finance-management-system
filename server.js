@@ -54,11 +54,18 @@ let pdf = require("html-pdf");
  
 // database
 var mysql = require('mysql2');
+
+console.log('🔍 Database Config:');
+console.log('  Host:', process.env.MYSQLHOST);
+console.log('  User:', process.env.MYSQLUSER);
+console.log('  Database:', process.env.MYSQLDATABASE);
+console.log('  Port:', process.env.MYSQLPORT);
+
 var con = mysql.createConnection({
     host: process.env.MYSQLHOST || 'localhost',
     user: process.env.MYSQLUSER || 'root',
     password: process.env.MYSQLPASSWORD || '',
-    database: process.env.MYSQLDATABASE || 'mydb',
+    database: process.env.MYSQLDATABASE || 'railway',
     port: process.env.MYSQLPORT || 3306
 })
 
