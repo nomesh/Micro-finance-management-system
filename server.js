@@ -55,10 +55,11 @@ let pdf = require("html-pdf");
 // database
 var mysql = require('mysql');
 var con = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '',
-    database: 'mydb'
+    host: process.env.MYSQLHOST || 'localhost',
+    user: process.env.MYSQLUSER || 'root',
+    password: process.env.MYSQLPASSWORD || '',
+    database: process.env.MYSQLDATABASE || 'mydb',
+    port: process.env.MYSQLPORT || 3306
 })
 
 
@@ -1063,4 +1064,7 @@ app.get('/today',(req,res)=>{
 
 
 
-app.listen( process.env.port || 3000);
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
