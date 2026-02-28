@@ -167,33 +167,34 @@ app.get('/login',(req,res) =>{
 app.post('/login',(req,res) => {
 
     var email = req.body.lemail;
-   // console.log(email);
-    
     var password = req.body.lpass;
-    con.query('SELECT * FROM users WHERE email = ?', [email], function (error, results, fields) {
+    
+    con.query('SELECT * FROM user WHERE email = ?', [email], function (error, results, fields) {
         if (error) {
-            // console.log("error ocurred",error);
+            console.log("Login error:", error);
             res.send({
                 "code": 400,
                 "failed": "error ocurred"
             })
         } else {
-            // console.log('The solution is: ', results);
-            // future date creation
-            //var date2 = new Date((new Date()).getTime() + (2 * (30 * 86400000)))
-           
-            
             if (results.length > 0) {
-                if (results[0].pass == password) {
-                    req.session.user = "yes";
-                    req.session.admin = true;
-                    res.redirect('/index');
-                }
-                else {
-                    var id = "password not match";
-                    res.redirect('/notifi/' + id);
-
-                  }
+                // Use bcrypt to compare password
+                bcrypt.compare(password, results[0].password, function(err, isMatch) {
+                    if (err) {
+                        console.log("Bcrypt error:", err);
+                        res.send({
+                            "code": 400,
+                            "failed": "error ocurred"
+                        })
+                    } else if (isMatch) {
+                        req.session.user = "yes";
+                        req.session.admin = true;
+                        res.redirect('/index');
+                    } else {
+                        var id = "password not match";
+                        res.redirect('/notifi/' + id);
+                    }
+                });
             }
             else {
                 var id = "email not exits";
