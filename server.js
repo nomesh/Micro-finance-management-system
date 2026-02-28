@@ -120,6 +120,15 @@ con.connect((err) => {
           late_fee float NOT NULL DEFAULT 0,
           PRIMARY KEY (install_id)
         ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+        
+        CREATE TABLE IF NOT EXISTS schedule (
+          install_no int(11) NOT NULL,
+          cus_id int(11) NOT NULL,
+          cus_name varchar(200) NOT NULL,
+          Time varchar(255) NOT NULL,
+          status varchar(200) NOT NULL,
+          PRIMARY KEY (install_no, cus_id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
     `;
     
     con.query(setupSQL, (err) => {
