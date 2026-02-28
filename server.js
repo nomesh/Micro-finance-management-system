@@ -129,6 +129,18 @@ con.connect((err) => {
           status varchar(200) NOT NULL,
           PRIMARY KEY (install_no, cus_id)
         ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+        
+        CREATE TABLE IF NOT EXISTS loan_info (
+          scheme_id int(11) NOT NULL,
+          cus_id int(11) NOT NULL,
+          scheme_amount float NOT NULL,
+          remaining_amount float NOT NULL,
+          installment_no int(11) NOT NULL,
+          installment_remaining int(11) NOT NULL,
+          installment_amount float NOT NULL,
+          date varchar(20) NOT NULL,
+          PRIMARY KEY (cus_id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
     `;
     
     con.query(setupSQL, (err) => {
