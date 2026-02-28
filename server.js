@@ -62,6 +62,85 @@ var con = mysql.createConnection({
     port: process.env.MYSQLPORT || 3306
 })
 
+// Initialize database tables on startup
+con.connect((err) => {
+    if (err) {
+        console.error('❌ Database connection failed:', err.message);
+        return;
+    }
+    console.log('✅ Connected to database');
+    
+    const setupSQL = `
+        CREATE TABLE IF NOT EXISTS user (
+          user_id int(11) NOT NULL AUTO_INCREMENT,
+          name varchar(255) NOT NULL,
+          email varchar(255) NOT NULL,
+          password varchar(255) NOT NULL,
+          PRIMARY KEY (user_id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+        
+        CREATE TABLE IF NOT EXISTS scheme (
+          scheme_id int(11) NOT NULL AUTO_INCREMENT,
+          scheme_name varchar(255) NOT NULL,
+          scheme_amount float NOT NULL,
+          scheme_duration int(11) NOT NULL,
+          scheme_interest float NOT NULL,
+          PRIMARY KEY (scheme_id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+        
+        CREATE TABLE IF NOT EXISTS customer (
+          cus_id int(11) NOT NULL AUTO_INCREMENT,
+          scheme_id int(11) NOT NULL,
+          scheme_name varchar(200) NOT NULL,
+          scheme_amount float NOT NULL,
+          installment_amount float NOT NULL,
+          cus_name varchar(255) NOT NULL,
+          cus_contact varchar(255) NOT NULL,
+          cus_address varchar(255) NOT NULL,
+          cus_asset varchar(255) NOT NULL,
+          asset_price float NOT NULL,
+          img varchar(200) NOT NULL,
+          date varchar(255) NOT NULL,
+          PRIMARY KEY (cus_id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+        
+        CREATE TABLE IF NOT EXISTS installment (
+          install_id int(11) NOT NULL AUTO_INCREMENT,
+          cus_id int(11) NOT NULL,
+          amount float NOT NULL,
+          date varchar(255) NOT NULL,
+          late_fee float NOT NULL DEFAULT 0,
+          PRIMARY KEY (install_id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+    `;
+    
+    con.query(setupSQL, (err) => {
+        if (err) {
+            console.error('❌ Error creating tables:', err.message);
+            return;
+        }
+        console.log('✅ Tables ready');
+        
+        // Insert default data
+        con.query(`INSERT INTO user (user_id, name, email, password) 
+                   SELECT 1, 'Admin', 'test1@gmail.com', '$2b$10$8EUIb7zL0LZDqKGmhqH0Oe5RlJvL5xJxJxJxJxJxJxJxJxJxJxJxJ'
+                   WHERE NOT EXISTS (SELECT 1 FROM user WHERE user_id = 1)`, (err) => {
+            if (err) console.error('User insert error:', err.message);
+            else console.log('✅ Default user ready');
+        });
+        
+        con.query(`INSERT INTO scheme (scheme_id, scheme_name, scheme_amount, scheme_duration, scheme_interest) VALUES
+                   (1, 'Housing Loan', 500000, 12, 5),
+                   (2, 'Business Loan', 300000, 6, 7),
+                   (3, 'Education Loan', 150000, 6, 4),
+                   (4, 'Vehicle Loan', 800000, 12, 6)
+                   ON DUPLICATE KEY UPDATE scheme_id=scheme_id`, (err) => {
+            if (err) console.error('Scheme insert error:', err.message);
+            else console.log('✅ Default schemes ready');
+        });
+    });
+});
+
 
 // set up routing and view 
 app.set('view-engine', 'ejs')
