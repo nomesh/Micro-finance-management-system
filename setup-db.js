@@ -10,12 +10,7 @@ const con = mysql.createConnection({
 });
 
 const setupSQL = `
-DROP TABLE IF EXISTS installment;
-DROP TABLE IF EXISTS customer;
-DROP TABLE IF EXISTS scheme;
-DROP TABLE IF EXISTS user;
-
-CREATE TABLE user (
+CREATE TABLE IF NOT EXISTS user (
   user_id int(11) NOT NULL AUTO_INCREMENT,
   name varchar(255) NOT NULL,
   email varchar(255) NOT NULL,
@@ -23,10 +18,7 @@ CREATE TABLE user (
   PRIMARY KEY (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-INSERT INTO user (user_id, name, email, password) VALUES
-(1, 'Admin', 'test1@gmail.com', '$2b$10$8EUIb7zL0LZDqKGmhqH0Oe5RlJvL5xJxJxJxJxJxJxJxJxJxJxJxJ');
-
-CREATE TABLE scheme (
+CREATE TABLE IF NOT EXISTS scheme (
   scheme_id int(11) NOT NULL AUTO_INCREMENT,
   scheme_name varchar(255) NOT NULL,
   scheme_amount float NOT NULL,
@@ -35,13 +27,7 @@ CREATE TABLE scheme (
   PRIMARY KEY (scheme_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-INSERT INTO scheme (scheme_id, scheme_name, scheme_amount, scheme_duration, scheme_interest) VALUES
-(1, 'Housing Loan', 500000, 12, 5),
-(2, 'Business Loan', 300000, 6, 7),
-(3, 'Education Loan', 150000, 6, 4),
-(4, 'Vehicle Loan', 800000, 12, 6);
-
-CREATE TABLE customer (
+CREATE TABLE IF NOT EXISTS customer (
   cus_id int(11) NOT NULL AUTO_INCREMENT,
   scheme_id int(11) NOT NULL,
   scheme_name varchar(200) NOT NULL,
@@ -57,7 +43,7 @@ CREATE TABLE customer (
   PRIMARY KEY (cus_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-CREATE TABLE installment (
+CREATE TABLE IF NOT EXISTS installment (
   install_id int(11) NOT NULL AUTO_INCREMENT,
   cus_id int(11) NOT NULL,
   amount float NOT NULL,
@@ -65,6 +51,19 @@ CREATE TABLE installment (
   late_fee float NOT NULL DEFAULT 0,
   PRIMARY KEY (install_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO user (user_id, name, email, password)
+SELECT 1, 'Admin', 'test1@gmail.com', '$2b$10$8EUIb7zL0LZDqKGmhqH0Oe5RlJvL5xJxJxJxJxJxJxJxJxJxJxJxJ'
+WHERE NOT EXISTS (SELECT 1 FROM user WHERE user_id = 1);
+
+INSERT INTO scheme (scheme_id, scheme_name, scheme_amount, scheme_duration, scheme_interest)
+SELECT * FROM (
+  SELECT 1, 'Housing Loan', 500000, 12, 5 UNION ALL
+  SELECT 2, 'Business Loan', 300000, 6, 7 UNION ALL
+  SELECT 3, 'Education Loan', 150000, 6, 4 UNION ALL
+  SELECT 4, 'Vehicle Loan', 800000, 12, 6
+) AS tmp
+WHERE NOT EXISTS (SELECT 1 FROM scheme WHERE scheme_id = tmp.scheme_id);
 `;
 
 con.connect((err) => {
