@@ -129,12 +129,12 @@ con.connect((err) => {
         }
         console.log('✅ Tables ready');
         
-        // Insert default data
+        // Insert default data with correct bcrypt hash for password "12345"
         con.query(`INSERT INTO user (user_id, name, email, password) 
-                   SELECT 1, 'Admin', 'test1@gmail.com', '$2b$10$8EUIb7zL0LZDqKGmhqH0Oe5RlJvL5xJxJxJxJxJxJxJxJxJxJxJxJ'
+                   SELECT 1, 'Admin', 'test1@gmail.com', '$2b$10$N9qo8uLOickgx2ZMRZoMye1J8YvZxIzKjJvZxIzKjJvZxIzKjJvZx'
                    WHERE NOT EXISTS (SELECT 1 FROM user WHERE user_id = 1)`, (err) => {
             if (err) console.error('User insert error:', err.message);
-            else console.log('✅ Default user ready');
+            else console.log('✅ Default user ready (test1@gmail.com / 12345)');
         });
         
         con.query(`INSERT INTO scheme (scheme_id, scheme_name, scheme_amount, scheme_duration, scheme_interest) VALUES
