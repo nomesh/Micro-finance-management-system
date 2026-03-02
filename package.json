@@ -2,9 +2,9 @@
   "name": "login",
   "version": "1.0.0",
   "description": "",
-  "main": "setup.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node setup.js",
+    "start": "node server.js",
     "devStart": "nodemon server.js"
   },
   "author": "",
