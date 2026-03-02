@@ -295,13 +295,13 @@ app.post('/cus_register',auth, (req, res) => {
             res.send(error)
         }
         else{
-          var scheme_amount = results[0].amount;
+          var scheme_amount = results[0].scheme_amount;
           var asset = results[0].r_asset;
-          var scheme_name = results[0].name;
-          var amount = results[0].amount;
+          var scheme_name = results[0].scheme_name;
+          var amount = results[0].scheme_amount;
           var no_installment = results[0].no_installment;
           var installment_amount = Math.round(amount/no_installment);
-          var duration  = results[0].duration;
+          var duration  = results[0].scheme_duration;
            
         }
         // customer data object
