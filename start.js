@@ -47,10 +47,26 @@ async function setup() {
     );
     console.log('✅ Password updated for test1@gmail.com');
     
-    // Step 4: Check scheme table structure
+    // Step 4: Check and fix scheme table structure
     console.log('Step 4: Checking scheme table structure...');
     const [schemeColumns] = await connection.query('DESCRIBE scheme');
     console.log('Scheme columns found:', schemeColumns.map(c => `${c.Field} (${c.Type})`).join(', '));
+    
+    const requiredColumns = [
+        { name: 'no_installment', type: 'INT(11)' },
+        { name: 'Install_amount', type: 'FLOAT' },
+        { name: 'date', type: 'VARCHAR(20)' }
+    ];
+    
+    for (const col of requiredColumns) {
+        const exists = schemeColumns.find(c => c.Field === col.name);
+        if (!exists) {
+            console.log(`Adding missing column: ${col.name}`);
+            await connection.query(`ALTER TABLE scheme ADD ${col.name} ${col.type}`);
+            console.log(`✅ Added ${col.name}`);
+        }
+    }
+    console.log('✅ Scheme table structure OK');
     
     await connection.end();
     console.log('=== DATABASE SETUP COMPLETE ===\n');

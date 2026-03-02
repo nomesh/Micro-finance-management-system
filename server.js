@@ -411,8 +411,11 @@ app.post('/scheme', auth, (req, res) => {
         const data = {
             "scheme_name": req.body.name,
             "scheme_amount": req.body.Amount,
-            "scheme_duration": req.body.instl,
-            "scheme_interest": req.body.r_asset
+            "scheme_interest": req.body.r_asset,
+            "no_installment": req.body.instl,
+            "Install_amount": install_amount,
+            "scheme_duration": req.body.Duration,
+            "date": date
         }
         //    query for inserting data
         con.query('INSERT INTO scheme SET ?', data, function (error, results, fields) {
