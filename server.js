@@ -409,12 +409,12 @@ app.post('/scheme', auth, (req, res) => {
         var install_amount = Math.round(amount / install);
 
         const data = {
-            "name": req.body.name,
-            "amount": req.body.Amount,
+            "scheme_name": req.body.name,
+            "scheme_amount": req.body.Amount,
             "r_asset": req.body.r_asset,
             "no_installment": req.body.instl,
             "Install_amount": install_amount,
-            "duration": req.body.Duration,
+            "scheme_duration": req.body.Duration,
             "date": date
         }
         //    query for inserting data
