@@ -53,7 +53,7 @@ let pdf = require("html-pdf");
 
  
 // database
-var mysql = require('mysql');
+var mysql = require('mysql2');
 var con = mysql.createConnection({
     host: process.env.MYSQLHOST || 'localhost',
     user: process.env.MYSQLUSER || 'root',
