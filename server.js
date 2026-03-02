@@ -331,7 +331,7 @@ app.post('/cus_register',auth, (req, res) => {
            
             //    query for inserting data in customer
             con.query('INSERT INTO customer SET ?', data, function (error, results, fields) {
-                if (error) throw res.send(error)
+                if (error) { console.error(error); return res.send(error); }
                 
 
                 //res.redirect("/index");
@@ -339,7 +339,7 @@ app.post('/cus_register',auth, (req, res) => {
             
         //  insert into loan_info table
             con.query(`INSERT INTO loan_info (scheme_id, scheme_amount, remaining_amount, installment_no, installment_remaining,installment_amount, date) VALUES ('${scheme_id}','${amount}','${amount}','${no_installment}','${no_installment}','${installment_amount}','${time1}')`, function (error, results, fields) {
-                if (error) throw res.send(error)
+                if (error) { console.error(error); return res.send(error); }
                 
 
                 // res.redirect("/index");
@@ -356,7 +356,7 @@ app.post('/cus_register',auth, (req, res) => {
     con.query('SELECT * FROM  customer ORDER by cus_id DESC LIMIT 1',function (err,results) {
         if(err)
         {
-            throw res.send(err)
+            { console.error(err); return res.send(err); }
         }
         else{
             
@@ -380,7 +380,7 @@ app.post('/cus_register',auth, (req, res) => {
               //  console.log(date2);
              
                 con.query(`INSERT INTO schedule (install_no,cus_id,cus_name,Time,status) VALUES ('${i}','${cus_id}','${name}','${date2.toISOString().slice(0, 10)}','${status}')`, function (error, results, fields) {
-                    if (error) throw res.send(error)
+                    if (error) { console.error(error); return res.send(error); }
 
                 });
 
@@ -420,7 +420,7 @@ app.post('/scheme', auth, (req, res) => {
         }
         //    query for inserting data
         con.query('INSERT INTO scheme SET ?', data, function (error, results, fields) {
-            if (error) throw res.send(error)
+            if (error) { console.error(error); return res.send(error); }
             res.redirect("/scheme_view");
 
         });
@@ -442,7 +442,7 @@ function updateScheme(req,res) {
 
 
     con.query(`UPDATE scheme SET name = '${name}', amount = '${amount}', r_asset = '${r_asset}', no_installment = '${no_installment}', duration = '${duration}' WHERE scheme_id = ${id}`, function (error, results) {
-        if (error) throw res.send(error);
+        if (error) { console.error(error); return res.send(error); };
         res.redirect("/view_scheme");
     })
     
@@ -726,7 +726,7 @@ app.post('/installment', auth,function (req,res) {
     con.query(`SELECT * FROM loan_info WHERE cus_id = ${cusID}`,function (error, results, fields) {
         if (error)
         {
-            throw res.send(error)
+            { console.error(error); return res.send(error); }
         }
         else{
             
@@ -759,7 +759,7 @@ app.post('/installment', auth,function (req,res) {
             //  compring time 
         con.query(`SELECT * FROM schedule WHERE install_no = ${install_no} and cus_id = ${cusID}`, function (error, results, fields) {
                 if (error) {
-                    throw res.send(error)
+                    { console.error(error); return res.send(error); }
                 }
                 else{
                     var date1 = new Date(results[0].Time);
@@ -806,7 +806,7 @@ app.post('/installment', auth,function (req,res) {
                 schedule_date: schedule_date
             }
             con.query('INSERT INTO installment SET ?', data, function (error, results, fields) {
-                if (error) throw res.send(error);
+                if (error) { console.error(error); return res.send(error); };
                  
             })
             // updating the schedule status
@@ -820,7 +820,7 @@ app.post('/installment', auth,function (req,res) {
             
             for (var i = 1; i <= loop; i++) {
                 con.query(`UPDATE schedule SET status = 'paid' WHERE cus_id = '${cusID}' AND install_no = '${install_no}'`, function (error, results) {
-                    if (error) throw res.send(error);
+                    if (error) { console.error(error); return res.send(error); };
                     
                 })
                 install_no++;
