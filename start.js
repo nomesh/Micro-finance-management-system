@@ -12,12 +12,12 @@ async function setup() {
 
     console.log('=== DATABASE SETUP START ===');
     
-    // Step 1: Check table structure
-    console.log('Step 1: Checking table structure...');
-    const [columns] = await connection.query('DESCRIBE user');
-    console.log('Columns found:', columns.map(c => c.Field).join(', '));
+    // Step 1: Check user table structure
+    console.log('Step 1: Checking user table structure...');
+    const [userColumns] = await connection.query('DESCRIBE user');
+    console.log('User columns found:', userColumns.map(c => c.Field).join(', '));
     
-    const passwordColumn = columns.find(col => col.Field.toLowerCase().includes('pass'));
+    const passwordColumn = userColumns.find(col => col.Field.toLowerCase().includes('pass'));
     
     if (!passwordColumn) {
         console.error('❌ No password column found!');
@@ -47,10 +47,15 @@ async function setup() {
     );
     console.log('✅ Password updated for test1@gmail.com');
     
+    // Step 4: Check scheme table structure
+    console.log('Step 4: Checking scheme table structure...');
+    const [schemeColumns] = await connection.query('DESCRIBE scheme');
+    console.log('Scheme columns found:', schemeColumns.map(c => `${c.Field} (${c.Type})`).join(', '));
+    
     await connection.end();
     console.log('=== DATABASE SETUP COMPLETE ===\n');
     
-    // Step 4: Start server
+    // Step 5: Start server
     require('./server.js');
 }
 
