@@ -410,13 +410,12 @@ app.post('/scheme', auth, (req, res) => {
 
         const data = {
             "name": req.body.name,
-            "Amount": req.body.Amount,
+            "amount": req.body.Amount,
             "r_asset": req.body.r_asset,
             "no_installment": req.body.instl,
-            "install_amount": install_amount,
+            "Install_amount": install_amount,
             "duration": req.body.Duration,
-            date
-
+            "date": date
         }
         //    query for inserting data
         con.query('INSERT INTO scheme SET ?', data, function (error, results, fields) {
