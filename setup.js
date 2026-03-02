@@ -14,7 +14,7 @@ async function setupDatabase() {
     console.log('Connected to database');
 
     // Check if tables exist
-    const [tables] = await connection.query("SHOW TABLES LIKE 'users'");
+    const [tables] = await connection.query("SHOW TABLES LIKE 'user'");
     
     if (tables.length === 0) {
         console.log('Tables not found. Importing schema...');

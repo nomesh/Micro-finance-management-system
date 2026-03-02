@@ -90,7 +90,7 @@ app.post('/login',(req,res) => {
    // console.log(email);
     
     var password = req.body.lpass;
-    con.query('SELECT * FROM users WHERE email = ?', [email], function (error, results, fields) {
+    con.query('SELECT * FROM user WHERE email = ?', [email], function (error, results, fields) {
         if (error) {
             // console.log("error ocurred",error);
             res.send({
@@ -955,7 +955,7 @@ app.post('/forgot', (req, res) => {
     var father = req.body.father;
     var like = req.body.like;
    
-    con.query(`select pass from users where father_name = '${father}' and likee  = '${like}'`, function (error, results) {
+    con.query(`select pass from user where father_name = '${father}' and likee  = '${like}'`, function (error, results) {
         if (error){
             res.send(error);
         }
