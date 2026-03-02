@@ -333,16 +333,12 @@ app.post('/cus_register',auth, (req, res) => {
             con.query('INSERT INTO customer SET ?', data, function (error, results, fields) {
                 if (error) { console.error(error); return res.send(error); }
                 
-
-                //res.redirect("/index");
-            });
-            
-        //  insert into loan_info table
-            con.query(`INSERT INTO loan_info (scheme_id, scheme_amount, remaining_amount, installment_no, installment_remaining,installment_amount, date) VALUES ('${scheme_id}','${amount}','${amount}','${no_installment}','${no_installment}','${installment_amount}','${time1}')`, function (error, results, fields) {
-                if (error) { console.error(error); return res.send(error); }
+                var new_cus_id = results.insertId;
                 
-
-                // res.redirect("/index");
+                //  insert into loan_info table with the new customer ID
+                con.query(`INSERT INTO loan_info (cus_id, scheme_id, scheme_amount, remaining_amount, installment_no, installment_remaining, installment_amount, date) VALUES ('${new_cus_id}','${scheme_id}','${amount}','${amount}','${no_installment}','${no_installment}','${installment_amount}','${time1}')`, function (error, results, fields) {
+                    if (error) { console.error(error); return res.send(error); }
+                });
             });
         
             }
