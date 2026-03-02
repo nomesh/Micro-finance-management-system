@@ -28,7 +28,7 @@ con.connect((err) => {
         console.log('Updating user password...');
         
         con.query(
-            `UPDATE user SET password = ? WHERE email = 'test1@gmail.com'`,
+            `UPDATE user SET pass = ? WHERE email = 'test1@gmail.com'`,
             [hash],
             (err, result) => {
                 if (err) {
