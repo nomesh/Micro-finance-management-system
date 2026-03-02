@@ -100,14 +100,14 @@ app.post('/login',(req,res) => {
             })
         } else {
             if (results.length > 0) {
-                console.log('User found. Password from DB:', results[0].pass);
-                console.log('Password is hashed:', results[0].pass && results[0].pass.startsWith('$2b$'));
+                console.log('User found. Password from DB:', results[0].password);
+                console.log('Password is hashed:', results[0].password && results[0].password.startsWith('$2b$'));
                 
                 // Check if password is hashed or plain text
-                if (results[0].pass && results[0].pass.startsWith('$2b$')) {
+                if (results[0].password && results[0].password.startsWith('$2b$')) {
                     // Bcrypt hash - use bcrypt compare
                     console.log('Using bcrypt compare');
-                    bcrypt.compare(password, results[0].pass, function(err, isMatch) {
+                    bcrypt.compare(password, results[0].password, function(err, isMatch) {
                         if (err) {
                             console.error('Bcrypt error:', err);
                             res.send({
@@ -129,7 +129,7 @@ app.post('/login',(req,res) => {
                 } else {
                     // Plain text password
                     console.log('Using plain text compare');
-                    if (results[0].pass == password) {
+                    if (results[0].password == password) {
                         req.session.user = "yes";
                         req.session.admin = true;
                         res.redirect('/index');
@@ -985,7 +985,7 @@ app.post('/forgot', (req, res) => {
         if (error){
             res.send(error);
         }
-        var pass = results[0].pass;
+        var pass = results[0].password;
         res.send("Your Password was " +pass)
     })
 })
