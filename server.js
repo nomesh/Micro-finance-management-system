@@ -104,16 +104,36 @@ app.post('/login',(req,res) => {
            
             
             if (results.length > 0) {
-                if (results[0].pass == password) {
-                    req.session.user = "yes";
-                    req.session.admin = true;
-                    res.redirect('/index');
+                // Check if password is hashed or plain text
+                if (results[0].pass.startsWith('$2b$')) {
+                    // Bcrypt hash - use bcrypt compare
+                    bcrypt.compare(password, results[0].pass, function(err, isMatch) {
+                        if (err) {
+                            res.send({
+                                "code": 400,
+                                "failed": "error ocurred"
+                            })
+                        } else if (isMatch) {
+                            req.session.user = "yes";
+                            req.session.admin = true;
+                            res.redirect('/index');
+                        } else {
+                            var id = "password not match";
+                            res.redirect('/notifi/' + id);
+                        }
+                    });
+                } else {
+                    // Plain text password
+                    if (results[0].pass == password) {
+                        req.session.user = "yes";
+                        req.session.admin = true;
+                        res.redirect('/index');
+                    }
+                    else {
+                        var id = "password not match";
+                        res.redirect('/notifi/' + id);
+                    }
                 }
-                else {
-                    var id = "password not match";
-                    res.redirect('/notifi/' + id);
-
-                  }
             }
             else {
                 var id = "email not exits";
