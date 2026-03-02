@@ -53,122 +53,20 @@ let pdf = require("html-pdf");
 
  
 // database
-var mysql = require('mysql2');
-
-console.log('🔍 Database Config:');
-console.log('  Host:', process.env.MYSQLHOST);
-console.log('  User:', process.env.MYSQLUSER);
-console.log('  Database:', process.env.MYSQLDATABASE);
-console.log('  Port:', process.env.MYSQLPORT);
-
+var mysql = require('mysql');
 var con = mysql.createConnection({
     host: process.env.MYSQLHOST || 'localhost',
     user: process.env.MYSQLUSER || 'root',
     password: process.env.MYSQLPASSWORD || '',
-    database: process.env.MYSQLDATABASE || 'railway',
-    port: process.env.MYSQLPORT || 3306,
-    multipleStatements: true
+    database: process.env.MYSQLDATABASE || 'mydb',
+    port: process.env.MYSQLPORT || 3306
 })
 
-// Initialize database tables on startup
-con.connect((err) => {
-    if (err) {
-        console.error('❌ Database connection failed:', err.message);
-        return;
-    }
-    console.log('✅ Connected to database');
-    
-    const setupSQL = `
-        CREATE TABLE IF NOT EXISTS user (
-          user_id int(11) NOT NULL AUTO_INCREMENT,
-          name varchar(255) NOT NULL,
-          email varchar(255) NOT NULL,
-          password varchar(255) NOT NULL,
-          PRIMARY KEY (user_id)
-        ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-        
-        CREATE TABLE IF NOT EXISTS scheme (
-          scheme_id int(11) NOT NULL AUTO_INCREMENT,
-          scheme_name varchar(255) NOT NULL,
-          scheme_amount float NOT NULL,
-          scheme_duration int(11) NOT NULL,
-          scheme_interest float NOT NULL,
-          PRIMARY KEY (scheme_id)
-        ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-        
-        CREATE TABLE IF NOT EXISTS customer (
-          cus_id int(11) NOT NULL AUTO_INCREMENT,
-          scheme_id int(11) NOT NULL,
-          scheme_name varchar(200) NOT NULL,
-          scheme_amount float NOT NULL,
-          installment_amount float NOT NULL,
-          cus_name varchar(255) NOT NULL,
-          cus_contact varchar(255) NOT NULL,
-          cus_address varchar(255) NOT NULL,
-          cus_asset varchar(255) NOT NULL,
-          asset_price float NOT NULL,
-          img varchar(200) NOT NULL,
-          date varchar(255) NOT NULL,
-          PRIMARY KEY (cus_id)
-        ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-        
-        CREATE TABLE IF NOT EXISTS installment (
-          install_id int(11) NOT NULL AUTO_INCREMENT,
-          cus_id int(11) NOT NULL,
-          amount float NOT NULL,
-          date varchar(255) NOT NULL,
-          late_fee float NOT NULL DEFAULT 0,
-          PRIMARY KEY (install_id)
-        ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-        
-        CREATE TABLE IF NOT EXISTS schedule (
-          install_no int(11) NOT NULL,
-          cus_id int(11) NOT NULL,
-          cus_name varchar(200) NOT NULL,
-          Time varchar(255) NOT NULL,
-          status varchar(200) NOT NULL,
-          PRIMARY KEY (install_no, cus_id)
-        ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-        
-        CREATE TABLE IF NOT EXISTS loan_info (
-          scheme_id int(11) NOT NULL,
-          cus_id int(11) NOT NULL,
-          scheme_amount float NOT NULL,
-          remaining_amount float NOT NULL,
-          installment_no int(11) NOT NULL,
-          installment_remaining int(11) NOT NULL,
-          installment_amount float NOT NULL,
-          date varchar(20) NOT NULL,
-          PRIMARY KEY (cus_id)
-        ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-    `;
-    
-    con.query(setupSQL, (err) => {
-        if (err) {
-            console.error('❌ Error creating tables:', err.message);
-            return;
-        }
-        console.log('✅ Tables ready');
-        
-        // Insert default data with correct bcrypt hash for password "12345"
-        con.query(`INSERT INTO user (user_id, name, email, password) 
-                   SELECT 1, 'Admin', 'test1@gmail.com', '$2b$10$N9qo8uLOickgx2ZMRZoMye1J8YvZxIzKjJvZxIzKjJvZxIzKjJvZx'
-                   WHERE NOT EXISTS (SELECT 1 FROM user WHERE user_id = 1)`, (err) => {
-            if (err) console.error('User insert error:', err.message);
-            else console.log('✅ Default user ready (test1@gmail.com / 12345)');
-        });
-        
-        con.query(`INSERT INTO scheme (scheme_id, scheme_name, scheme_amount, scheme_duration, scheme_interest) VALUES
-                   (1, 'Housing Loan', 500000, 12, 5),
-                   (2, 'Business Loan', 300000, 6, 7),
-                   (3, 'Education Loan', 150000, 6, 4),
-                   (4, 'Vehicle Loan', 800000, 12, 6)
-                   ON DUPLICATE KEY UPDATE scheme_id=scheme_id`, (err) => {
-            if (err) console.error('Scheme insert error:', err.message);
-            else console.log('✅ Default schemes ready');
-        });
-    });
-});
+
+
+
+
+
 
 
 // set up routing and view 
@@ -188,34 +86,33 @@ app.get('/login',(req,res) =>{
 app.post('/login',(req,res) => {
 
     var email = req.body.lemail;
-    var password = req.body.lpass;
+   // console.log(email);
     
-    con.query('SELECT * FROM user WHERE email = ?', [email], function (error, results, fields) {
+    var password = req.body.lpass;
+    con.query('SELECT * FROM users WHERE email = ?', [email], function (error, results, fields) {
         if (error) {
-            console.log("Login error:", error);
+            // console.log("error ocurred",error);
             res.send({
                 "code": 400,
                 "failed": "error ocurred"
             })
         } else {
+            // console.log('The solution is: ', results);
+            // future date creation
+            //var date2 = new Date((new Date()).getTime() + (2 * (30 * 86400000)))
+           
+            
             if (results.length > 0) {
-                // Use bcrypt to compare password
-                bcrypt.compare(password, results[0].password, function(err, isMatch) {
-                    if (err) {
-                        console.log("Bcrypt error:", err);
-                        res.send({
-                            "code": 400,
-                            "failed": "error ocurred"
-                        })
-                    } else if (isMatch) {
-                        req.session.user = "yes";
-                        req.session.admin = true;
-                        res.redirect('/index');
-                    } else {
-                        var id = "password not match";
-                        res.redirect('/notifi/' + id);
-                    }
-                });
+                if (results[0].pass == password) {
+                    req.session.user = "yes";
+                    req.session.admin = true;
+                    res.redirect('/index');
+                }
+                else {
+                    var id = "password not match";
+                    res.redirect('/notifi/' + id);
+
+                  }
             }
             else {
                 var id = "email not exits";
@@ -301,9 +198,10 @@ app.get('/index', auth,  (req, res) => {
     con.query(`SELECT COUNT(Time) as  t FROM schedule WHERE Time = '${datee}' AND status = 'unpaid'`, function (err, result) {
 
         if (err) {
+            console.error('Error fetching schedule count:', err);
             throw err;
         } else {
-            obj = { print: result };
+            obj = { print: result || [] };
             //console.log(result);
             
             res.render('index.ejs', obj);
@@ -331,9 +229,11 @@ app.get('/cus_register',auth, (req, res) => {
     con.query('SELECT * FROM scheme', function (err, result) {
 
         if (err) {
+            console.error('Error fetching schemes:', err);
             throw err;
         } else {
-            obj = { print: result };
+            console.log('Schemes fetched:', result);
+            obj = { print: result || [] };
             res.render('cus_register.ejs',obj);
         }
     })
@@ -530,11 +430,12 @@ app.get("/view_scheme", auth, (req, res) => {
     con.query('SELECT * FROM scheme', function (error, result) {
         
         if (error) {
+            console.error('Error fetching schemes:', error);
             throw error;
         } else {
-           // console.log(result);
+            console.log('Schemes fetched for view:', result);
             
-            view_scheme = { print: result };
+            view_scheme = { print: result || [] };
             res.render('view_scheme.ejs', view_scheme);
         }
     });
@@ -551,12 +452,13 @@ app.get('/scheme_action/:id', auth, function (req, res) {
         con.query(`SELECT * FROM scheme WHERE scheme_id = ${Id}`, function (error, result) {
 
             if (error) {
+                console.error('Error fetching scheme for edit:', error);
                 throw error;
             } else {
 
                 // customerEdit = results;
                 //console.log(result[0].RowDataPacket); 
-                schemeEdit = { print: result };
+                schemeEdit = { print: result || [] };
                 //console.log(customerEdit.print[0].cus_name);
 
                 res.render('scheme.ejs', schemeEdit)
@@ -622,11 +524,12 @@ app.get("/cus_view", auth, (req,res) => {
     con.query('SELECT * FROM customer', function (err, result) {
 
         if (err) {
+            console.error('Error fetching customers:', err);
             throw err;
         } else {
 
 
-            obj2 = { print: result };
+            obj2 = { print: result || [] };
             res.render('cus_view.ejs', obj2);
         }
     });
@@ -651,12 +554,13 @@ app.get('/action/:id', auth, function (req, res) {
         con.query(`SELECT * FROM customer WHERE cus_id = ${editId}`, function (err, result) {
 
             if (err) {
+                console.error('Error fetching customer for edit:', err);
                 throw err;
             } else {
                 
                 // customerEdit = results;
                 
-                customerEdit = { print: result }; 
+                customerEdit = { print: result || [] }; 
                 //console.log(result);
                 
                 //console.log(customerEdit.print[0].cus_name);
@@ -727,13 +631,14 @@ app.get('/info/:sid/:cid', auth,(req,res)=>{
         con.query(`SELECT * FROM loan_info WHERE cus_id = ${cusID}`, function (err, result) {
 
             if (err) {
+                console.error('Error fetching loan info:', err);
                 throw err;
             } else {
                     // console.log(result[0].name);
                     
                 // customerEdit = results;
                 // <%=print[0].name%>
-                loanInfo = { print: result };
+                loanInfo = { print: result || [] };
                 //  console.log(result);
                  res.render('cus_loan_view.ejs', loanInfo)
              
@@ -750,13 +655,14 @@ app.get("/view_loan", auth, (req, res) => {
     //   res.render('cus_view.ejs')
     var obj3 = {};
     var customer ={};
-    con.query('SELECT customer.cus_id, customer.cus_name, scheme.scheme_id, scheme.name, scheme.amount, scheme.no_installment, loan_info.remaining_amount, loan_info.installment_remaining,loan_info.installment_amount,loan_info.date FROM((scheme INNER JOIN customer ON scheme.scheme_id = customer.scheme_id) INNER JOIN loan_info ON customer.cus_id = loan_info.cus_id)', function (err, result) {
+    con.query('SELECT customer.cus_id, customer.cus_name, customer.scheme_id, customer.scheme_name, customer.scheme_amount, loan_info.installment_no, loan_info.remaining_amount, loan_info.installment_remaining,loan_info.installment_amount,loan_info.date FROM customer INNER JOIN loan_info ON customer.cus_id = loan_info.cus_id', function (err, result) {
 
         if (err) {
+            console.error('Error fetching loan view:', err);
             throw err;
         } else {
        // console.log(result);
-            obj3 = { print: result };
+            obj3 = { print: result || [] };
             res.render('view_loan.ejs', obj3);
         }
         // con.query('select * from customer',function (error,results,fields) {
@@ -920,13 +826,14 @@ app.get('/invoice/:id', auth, (req, res) => {
      var invoice ={};
     con.query(`SELECT  customer.cus_id,customer.cus_name,customer.cus_address,customer.cus_contact,customer.scheme_name,customer.scheme_amount,customer.scheme_id,customer.installment_amount,customer.img,installment.install_id,installment.amount,installment.remaining,installment.status,installment.fine,customer.date,installment.ins_date,installment.schedule_date FROM customer INNER JOIN installment ON customer.cus_id = installment.cus_id  where customer.cus_id = ${did}`, function (error, result) {
         if (error) {
+            console.error('Error fetching invoice data:', error);
             throw error;
         }
         else { 
           // console.log(result);
            
             
-             invoice = { print: result };
+             invoice = { print: result || [] };
             //  console.log(result);
              
          
@@ -947,12 +854,13 @@ app.get('/installment2/:id', auth, function (req, res) {
         con.query(`SELECT * FROM loan_info WHERE cus_id = ${Id}`, function (error, result) {
 
             if (error) {
+                console.error('Error fetching loan info for installment:', error);
                 throw error;
             } else {
 
                 // customerEdit = results;
                 //console.log(result[0].RowDataPacket); 
-                schemeEdit = { print: result };
+                schemeEdit = { print: result || [] };
                 //console.log(customerEdit.print[0].cus_name);
 
                 res.render('installment.ejs', schemeEdit);
@@ -977,11 +885,12 @@ app.get('/search/:id', function (req, res) {
     con.query(`select * from customer where cus_id = ${id}`,function (error,results) {
         if(error) 
         {
+            console.error('Error searching customer:', error);
             res.send(error)
         }
         else{
             
-            obj2 = { print: results };
+            obj2 = { print: results || [] };
             res.render('search.ejs', obj2);
         }
         
@@ -1000,11 +909,12 @@ app.get('/loan_search/:id', function (req, res) {
     //console.log(id);
     con.query(`SELECT customer.cus_id, customer.cus_name, customer.scheme_id, customer.scheme_name, customer.scheme_amount, loan_info.installment_no, loan_info.remaining_amount, loan_info.installment_remaining,loan_info.installment_amount,loan_info.date FROM customer INNER JOIN loan_info ON customer.cus_id = loan_info.cus_id where customer.cus_id = ${id}`, function (error, results) {
         if (error) {
+            console.error('Error searching loan:', error);
             res.send(error)
         }
         else {
 
-            obj2 = { print: results };
+            obj2 = { print: results || [] };
             res.render('loan_search.ejs', obj2);
         }
 
@@ -1019,10 +929,11 @@ app.get('/profile/:id',function (req,res) {
     con.query(`SELECT t.cus_id,t.cus_name,t.cus_contact,t.cus_address,t.cus_asset,t.asset_price,t.date,t.scheme_id,t.scheme_name,t.scheme_amount,t.installment_amount,t.date,t.img, tr.Time FROM customer t, schedule tr WHERE t.cus_id = tr.cus_id AND tr.cus_id  =  ${id}`, function (err, result) {
 
         if (err) {
+            console.error('Error fetching customer profile:', err);
             res.send(err);
         } else {
           
-            cusInfo = { print: result };
+            cusInfo = { print: result || [] };
             //  console.log(result);
             
             
@@ -1065,11 +976,12 @@ app.get("/generateReport/:id",auth, (req, res) => {
     con.query(`SELECT t.cus_id,t.cus_name,t.cus_contact,t.cus_address,t.cus_asset,t.asset_price,t.date,t.scheme_id,t.scheme_name,t.scheme_amount,t.installment_amount,t.date,t.img, tr.Time FROM customer t, schedule tr WHERE t.cus_id = tr.cus_id AND tr.cus_id=  ${id}`, function (err, result) {
 
         if (err) {
+            console.error('Error generating report:', err);
             res.send(err);
         } else {
             var cus  = result[0].cus_name;
             var cus_id = result[0].cus_id;
-          let  print = { print: result };
+          let  print = { print: result || [] };
 
       
             ejs.renderFile(path.join(__dirname, './views/', "profile_pdf.ejs"), print, (err, data) => {
@@ -1105,13 +1017,14 @@ app.get("/generateReport_invoice/:id",auth, (req, res) => {
 
     con.query(`SELECT  customer.cus_id,customer.cus_name,customer.cus_address,customer.cus_contact,customer.scheme_name,customer.scheme_amount,customer.scheme_id,customer.installment_amount,customer.img,installment.install_id,installment.amount,installment.remaining,installment.status,installment.fine,customer.date,installment.ins_date,installment.schedule_date FROM customer INNER JOIN installment ON customer.cus_id = installment.cus_id  where customer.cus_id = ${id}`, function (error, result) {
         if (error) {
+            console.error('Error generating invoice report:', error);
             throw error;
         }
         else {
             
             var cus = result[0].cus_name;
             var cus_id = result[0].cus_id;
-            let print = { print: result };
+            let print = { print: result || [] };
    
             ejs.renderFile(path.join(__dirname, './views/', "invoice_pdf.ejs"), print, (err, data) => {
                 if (err) {
@@ -1157,12 +1070,13 @@ app.get('/today',(req,res)=>{
     
     con.query(`SELECT * from schedule WHERE Time = '${today}' AND status = 'unpaid'`, function (error, results) {
         if (error) {
+            console.error('Error fetching today schedule:', error);
             res.send(error)
         }
         else {
            // console.log(results);
             
-            obj2 = { print: results };
+            obj2 = { print: results || [] };
             res.render('today.ejs', obj2);
         }
 
@@ -1174,6 +1088,4 @@ app.get('/today',(req,res)=>{
 
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
