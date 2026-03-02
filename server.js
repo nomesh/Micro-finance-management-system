@@ -105,10 +105,11 @@ app.post('/login',(req,res) => {
             
             if (results.length > 0) {
                 // Check if password is hashed or plain text
-                if (results[0].pass.startsWith('$2b$')) {
+                if (results[0].pass && results[0].pass.startsWith('$2b$')) {
                     // Bcrypt hash - use bcrypt compare
                     bcrypt.compare(password, results[0].pass, function(err, isMatch) {
                         if (err) {
+                            console.error('Bcrypt error:', err);
                             res.send({
                                 "code": 400,
                                 "failed": "error ocurred"
