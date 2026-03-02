@@ -232,7 +232,7 @@ CREATE TABLE `scheme` (
   `scheme_id` int(11) NOT NULL,
   `name` varchar(20) NOT NULL,
   `amount` float NOT NULL,
-  `r_asset` float NOT NULL,
+  `r_asset` varchar(100) NOT NULL,
   `no_installment` int(11) NOT NULL,
   `Install_amount` float NOT NULL,
   `duration` varchar(20) NOT NULL,
@@ -244,8 +244,8 @@ CREATE TABLE `scheme` (
 --
 
 INSERT INTO `scheme` (`scheme_id`, `name`, `amount`, `r_asset`, `no_installment`, `Install_amount`, `duration`, `date`) VALUES
-(1, 'Home Loan', 300000, 10000, 12, 25000, 'month', '2020-04-09 '),
-(2, 'Phone Loan', 20000, 5000, 6, 3333.33, 'week', '2020-04-09 ');
+(1, 'Home Loan', 300000, 'Property', 12, 25000, 'month', '2020-04-09 '),
+(2, 'Phone Loan', 20000, 'Phone', 6, 3333.33, 'week', '2020-04-09 ');
 
 -- --------------------------------------------------------
 

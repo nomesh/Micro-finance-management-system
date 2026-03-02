@@ -165,7 +165,7 @@ CREATE TABLE `scheme` (
   `scheme_id` int(11) NOT NULL,
   `name` varchar(20) NOT NULL,
   `amount` float NOT NULL,
-  `r_asset` float NOT NULL,
+  `r_asset` varchar(100) NOT NULL,
   `no_installment` int(11) NOT NULL,
   `Install_amount` float NOT NULL,
   `duration` varchar(20) NOT NULL,
@@ -173,10 +173,10 @@ CREATE TABLE `scheme` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 INSERT INTO `scheme` (`scheme_id`, `name`, `amount`, `r_asset`, `no_installment`, `Install_amount`, `duration`, `date`) VALUES
-(1, 'Housing Loan', 500000, 100000, 12, 41666.67, 'month', '2025-01-01'),
-(2, 'Business Loan', 300000, 80000, 6, 50000, 'month', '2025-01-01'),
-(3, 'Education Loan', 150000, 50000, 6, 25000, 'month', '2025-01-01'),
-(4, 'Vehicle Loan', 800000, 200000, 12, 66666.67, 'month', '2026-01-01');
+(1, 'Housing Loan', 500000, 'Property', 12, 41666.67, 'month', '2025-01-01'),
+(2, 'Business Loan', 300000, 'Machinery', 6, 50000, 'month', '2025-01-01'),
+(3, 'Education Loan', 150000, 'None', 6, 25000, 'month', '2025-01-01'),
+(4, 'Vehicle Loan', 800000, 'Car', 12, 66666.67, 'month', '2026-01-01');
 
 -- --------------------------------------------------------
 

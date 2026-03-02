@@ -407,6 +407,9 @@ app.post('/scheme', auth, (req, res) => {
         var amount = req.body.Amount;
         var install = req.body.instl;
         var install_amount = Math.round(amount / install);
+        
+        // Convert duration string to number
+        var duration = req.body.Duration === 'week' ? parseInt(install) : parseInt(install);
 
         const data = {
             "scheme_name": req.body.name,
@@ -414,7 +417,7 @@ app.post('/scheme', auth, (req, res) => {
             "r_asset": req.body.r_asset,
             "no_installment": req.body.instl,
             "Install_amount": install_amount,
-            "scheme_duration": req.body.Duration,
+            "scheme_duration": duration,
             "scheme_interest": req.body.interest || 0,
             "date": date
         }
