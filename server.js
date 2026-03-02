@@ -292,18 +292,18 @@ app.post('/cus_register',auth, (req, res) => {
 
     con.query(`select * from scheme where scheme_id = '${scheme_id}'`, function (error, results) {
         if (error){
-            res.send(error)
+            res.send(error);
+            return;
         }
-        else{
-          var scheme_amount = results[0].scheme_amount;
-          var asset = results[0].r_asset;
-          var scheme_name = results[0].scheme_name;
-          var amount = results[0].scheme_amount;
-          var no_installment = results[0].no_installment;
-          var installment_amount = Math.round(amount/no_installment);
-          var duration  = results[0].scheme_duration;
-           
-        }
+        
+        var scheme_amount = results[0].scheme_amount;
+        var asset = results[0].r_asset;
+        var scheme_name = results[0].scheme_name;
+        var amount = results[0].scheme_amount;
+        var no_installment = results[0].no_installment;
+        var installment_amount = Math.round(amount/no_installment);
+        var duration = results[0].scheme_duration;
+        
         // customer data object
     
         const data = {
@@ -339,6 +339,20 @@ app.post('/cus_register',auth, (req, res) => {
                 con.query(`INSERT INTO loan_info (cus_id, scheme_id, scheme_amount, remaining_amount, installment_no, installment_remaining, installment_amount, date) VALUES ('${new_cus_id}','${scheme_id}','${amount}','${amount}','${no_installment}','${no_installment}','${installment_amount}','${time1}')`, function (error, results, fields) {
                     if (error) { console.error(error); return res.send(error); }
                 });
+                
+                // Create schedule
+                var time_slot = duration; // duration is in days/months from scheme_duration
+                var status = "unpaid";
+                
+                for (var i = 1; i <= no_installment; i++) {
+                    var date2 = new Date((new Date()).getTime() + (i * (time_slot * 86400000)));
+                    
+                    con.query(`INSERT INTO schedule (install_no,cus_id,cus_name,Time,status) VALUES ('${i}','${new_cus_id}','${data.cus_name}','${date2.toISOString().slice(0, 10)}','${status}')`, function (error, results, fields) {
+                        if (error) { console.error(error); return res.send(error); }
+                    });
+                }
+                
+                res.redirect("/profile/" + new_cus_id);
             });
         
             }
@@ -348,44 +362,6 @@ app.post('/cus_register',auth, (req, res) => {
                 "Failed": "Your asset not Enough"
             });
         }
-    //  make shesule of customer
-    con.query('SELECT * FROM  customer ORDER by cus_id DESC LIMIT 1',function (err,results) {
-        if(err)
-        {
-            { console.error(err); return res.send(err); }
-        }
-        else{
-            
-            let cus_id = results[0].cus_id;
-            let name = results[0].cus_name;
-            let status  = "unpaid";
-            
-        //   creating wekly and monthly time
-           if(duration =='week')
-           {
-             var   time_slot = 7;
-           }
-           else if (duration == 'month')
-           {
-             var  time_slot = 30;
-           }
-            
-            for (var i = 1; i <= no_installment; i++) {
-                var date2 = new Date((new Date()).getTime() + (i * (time_slot * 86400000)))
-
-              //  console.log(date2);
-             
-                con.query(`INSERT INTO schedule (install_no,cus_id,cus_name,Time,status) VALUES ('${i}','${cus_id}','${name}','${date2.toISOString().slice(0, 10)}','${status}')`, function (error, results, fields) {
-                    if (error) { console.error(error); return res.send(error); }
-
-                });
-
-            }
-            res.redirect("/profile/" + cus_id)
-
-        }
-       
-    })
     })
   
         
