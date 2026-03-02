@@ -424,7 +424,7 @@ app.post('/scheme', auth, (req, res) => {
         //    query for inserting data
         con.query('INSERT INTO scheme SET ?', data, function (error, results, fields) {
             if (error) { console.error(error); return res.send(error); }
-            res.redirect("/scheme_view");
+            res.redirect("/view_scheme");
 
         });
     }
