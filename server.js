@@ -87,26 +87,26 @@ app.get('/login',(req,res) =>{
 app.post('/login',(req,res) => {
 
     var email = req.body.lemail;
-   // console.log(email);
-    
     var password = req.body.lpass;
+    
+    console.log('Login attempt for:', email);
+    
     con.query('SELECT * FROM user WHERE email = ?', [email], function (error, results, fields) {
         if (error) {
-            // console.log("error ocurred",error);
+            console.error('Login query error:', error);
             res.send({
                 "code": 400,
                 "failed": "error ocurred"
             })
         } else {
-            // console.log('The solution is: ', results);
-            // future date creation
-            //var date2 = new Date((new Date()).getTime() + (2 * (30 * 86400000)))
-           
-            
             if (results.length > 0) {
+                console.log('User found. Password from DB:', results[0].pass);
+                console.log('Password is hashed:', results[0].pass && results[0].pass.startsWith('$2b$'));
+                
                 // Check if password is hashed or plain text
                 if (results[0].pass && results[0].pass.startsWith('$2b$')) {
                     // Bcrypt hash - use bcrypt compare
+                    console.log('Using bcrypt compare');
                     bcrypt.compare(password, results[0].pass, function(err, isMatch) {
                         if (err) {
                             console.error('Bcrypt error:', err);
@@ -114,17 +114,21 @@ app.post('/login',(req,res) => {
                                 "code": 400,
                                 "failed": "error ocurred"
                             })
-                        } else if (isMatch) {
-                            req.session.user = "yes";
-                            req.session.admin = true;
-                            res.redirect('/index');
                         } else {
-                            var id = "password not match";
-                            res.redirect('/notifi/' + id);
+                            console.log('Bcrypt match result:', isMatch);
+                            if (isMatch) {
+                                req.session.user = "yes";
+                                req.session.admin = true;
+                                res.redirect('/index');
+                            } else {
+                                var id = "password not match";
+                                res.redirect('/notifi/' + id);
+                            }
                         }
                     });
                 } else {
                     // Plain text password
+                    console.log('Using plain text compare');
                     if (results[0].pass == password) {
                         req.session.user = "yes";
                         req.session.admin = true;
@@ -137,6 +141,7 @@ app.post('/login',(req,res) => {
                 }
             }
             else {
+                console.log('User not found');
                 var id = "email not exits";
                 res.redirect('/notifi/' + id);
             }
