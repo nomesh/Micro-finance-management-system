@@ -59,29 +59,8 @@ var con = mysql.createConnection({
     user: process.env.MYSQLUSER || 'root',
     password: process.env.MYSQLPASSWORD || '',
     database: process.env.MYSQLDATABASE || 'mydb',
-    port: process.env.MYSQLPORT || 3306,
-    multipleStatements: true
+    port: process.env.MYSQLPORT || 3306
 })
-
-// Test connection and check if tables exist
-con.connect((err) => {
-    if (err) {
-        console.error('Database connection failed:', err);
-        process.exit(1);
-    }
-    console.log('Database connected successfully');
-    
-    // Check if users table exists
-    con.query("SHOW TABLES LIKE 'users'", (error, results) => {
-        if (error) {
-            console.error('Error checking tables:', error);
-        } else if (results.length === 0) {
-            console.log('⚠️  Tables not found! Please import database/mydb.sql manually');
-        } else {
-            console.log('✅ Database tables found');
-        }
-    });
-});
 
 
 
