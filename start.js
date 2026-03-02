@@ -53,6 +53,7 @@ async function setup() {
     console.log('Scheme columns found:', schemeColumns.map(c => `${c.Field} (${c.Type})`).join(', '));
     
     const requiredColumns = [
+        { name: 'r_asset', type: 'FLOAT' },
         { name: 'no_installment', type: 'INT(11)' },
         { name: 'Install_amount', type: 'FLOAT' },
         { name: 'date', type: 'VARCHAR(20)' }
